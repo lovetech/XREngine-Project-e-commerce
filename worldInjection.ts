@@ -1,26 +1,25 @@
-
-// import { EntityNodeEditor, prefabIcons } from '@xrengine/editor/src/managers/NodeManager'
+import { EntityNodeEditor, prefabIcons } from '@xrengine/editor/src/managers/NodeManager'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-// import { MapNodeEditor } from './editor/MapNodeEditor'
-// import MapIcon from '@mui/icons-material/Map'
-// import { deserializeMap, SCENE_COMPONENT_MAP, SCENE_COMPONENT_MAP_DEFAULT_VALUES, serializeMap, updateMap } from './engine/MapFunctions'
-// import { defaultSpatialComponents } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import { defaultSpatialComponents } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { deserializeShopify, SCENE_COMPONENT_SHOPIFY, SCENE_COMPONENT_SHOPIFY_DEFAULT_VALUES, serializeShopify, updateShopify } from './engine/shopifyFunctions'
+import ShopifyNodeEditor from './editor/ShopifyNodeEditor'
 
-const map = 'Map' as const
+const shopify = 'Shopify' as const
 
-// EntityNodeEditor[map] = MapNodeEditor
-// prefabIcons[map] = MapIcon
+EntityNodeEditor[shopify] = ShopifyNodeEditor
+prefabIcons[shopify] = ShoppingCartIcon
 
 export default async (world: World) => {
-  console.log('\n\nhi\n\n')
-  // world.scenePrefabRegistry.set(map, [
-  //   ...defaultSpatialComponents,
-  //   { name: SCENE_COMPONENT_MAP, props: SCENE_COMPONENT_MAP_DEFAULT_VALUES }
-  // ])
 
-  // world.sceneLoadingRegistry.set(SCENE_COMPONENT_MAP, {
-  //   deserialize: deserializeMap,
-  //   serialize: serializeMap,
-  //   update: updateMap
-  // })
+  world.scenePrefabRegistry.set(shopify, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_SHOPIFY, props: SCENE_COMPONENT_SHOPIFY_DEFAULT_VALUES }
+  ])
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SHOPIFY, {
+    deserialize: deserializeShopify,
+    serialize: serializeShopify,
+    update: updateShopify
+  })
 }
