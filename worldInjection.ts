@@ -2,24 +2,24 @@ import { EntityNodeEditor, prefabIcons } from '@xrengine/editor/src/managers/Nod
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import { defaultSpatialComponents } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { deserializeShopify, SCENE_COMPONENT_SHOPIFY, SCENE_COMPONENT_SHOPIFY_DEFAULT_VALUES, serializeShopify, updateShopify } from './engine/shopifyFunctions'
-import ShopifyNodeEditor from './editor/ShopifyNodeEditor'
+import { deserializeProduct, SCENE_COMPONENT_PRODUCT, SCENE_COMPONENT_PRODUCT_DEFAULT_VALUES, serializeProduct, updateProduct } from './engine/productFunctions'
+import ProductNodeEditor from './editor/ProductNodeEditor'
 
-const shopify = 'Shopify' as const
+const product = 'e-commerce Product' as const
 
-EntityNodeEditor[shopify] = ShopifyNodeEditor
-prefabIcons[shopify] = ShoppingCartIcon
+EntityNodeEditor[product] = ProductNodeEditor
+prefabIcons[product] = ShoppingCartIcon
 
 export default async (world: World) => {
 
-  world.scenePrefabRegistry.set(shopify, [
+  world.scenePrefabRegistry.set(product, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_SHOPIFY, props: SCENE_COMPONENT_SHOPIFY_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_PRODUCT, props: SCENE_COMPONENT_PRODUCT_DEFAULT_VALUES }
   ])
 
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SHOPIFY, {
-    deserialize: deserializeShopify,
-    serialize: serializeShopify,
-    update: updateShopify
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PRODUCT, {
+    deserialize: deserializeProduct,
+    serialize: serializeProduct,
+    update: updateProduct
   })
 }
