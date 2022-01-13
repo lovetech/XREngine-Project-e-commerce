@@ -10,36 +10,43 @@ import VideoNodeEditor from '@xrengine/editor/src/components/properties/VideoNod
 import ModelNodeEditor from '@xrengine/editor/src/components/properties/ModelNodeEditor'
 import ImageNodeEditor from '@xrengine/editor/src/components/properties/ImageNodeEditor'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ProductComponent } from '../engine/ProductComponent'
+import { ProductComponent, ProductProviders } from '../engine/ProductComponent'
 
 export const ProductNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const productComponent = getComponent(props.node.entity, ProductComponent)
+  const extendType = typeof productComponent.productItemId === 'number' && productComponent.productItems[productComponent.productItemId]?.media?.extendType
 
-  const renderPropertiesFields = () => {
-    switch (productComponent.extendType) {
-      case 'model': return ModelNodeEditor(props)
-      case 'video': return VideoNodeEditor(props)
-      case 'image': return ImageNodeEditor(props)
-      default: return
-    }
+  let RenderPropertiesFields: EditorComponentType = null!
+  switch (extendType) {
+    case 'model': RenderPropertiesFields = ModelNodeEditor; break;
+    case 'video': RenderPropertiesFields = VideoNodeEditor; break;
+    case 'image': RenderPropertiesFields = ImageNodeEditor; break;
+    default: break
   }
 
   return (
     <NodeEditor description={t('editor:properties.product.description')} {...props}>
+      <InputGroup name="Product Provider" label={"Product Provider"}>
+        <SelectInput
+          options={ProductProviders.map(value => ({ label: value, value }))}
+          value={productComponent.provider}
+          onChange={updateProperty(ProductComponent, 'provider')}
+        />
+      </InputGroup>
       <InputGroup name="Product Domain" label={"Product Domain"}>
-        <StringInput value={productComponent.domain} onChange={updateProperty(ProductComponent, 'productDomain')} />
+        <StringInput value={productComponent.domain} onChange={updateProperty(ProductComponent, 'domain')} />
       </InputGroup>
       <InputGroup name="Product Access Token or Key" label={"Product Access Token or Key"}>
-        <StringInput value={productComponent.token} onChange={updateProperty(ProductComponent, 'productToken')} />
+        <StringInput value={productComponent.token} onChange={updateProperty(ProductComponent, 'token')} />
       </InputGroup>
       <InputGroup name="Product Secret" label={"Product Secret"}>
-        <StringInput value={productComponent.token} onChange={updateProperty(ProductComponent, 'productToken')} />
+        <StringInput value={productComponent.secret} onChange={updateProperty(ProductComponent, 'secret')} />
       </InputGroup>
       {productComponent.products && productComponent.products.length > 0 && (
         <InputGroup name="Product Products" label={"Product Products"}>
-          <SelectInput options={productComponent.products} value={productComponent.productId} onChange={updateProperty(ProductComponent, 'productProductId')} />
+          <SelectInput options={productComponent.products} value={productComponent.productId} onChange={updateProperty(ProductComponent, 'productId')} />
         </InputGroup>
       )}
       {productComponent.productItems && productComponent.productItems.length > 0 && (
@@ -47,13 +54,15 @@ export const ProductNodeEditor: EditorComponentType = (props) => {
           <SelectInput
             options={productComponent.productItems}
             value={productComponent.productItemId}
-            onChange={updateProperty(ProductComponent, 'productProductItemId')}
+            onChange={updateProperty(ProductComponent, 'productItemId')}
           />
         </InputGroup>
       )}
-      <Fragment>
-        {renderPropertiesFields()}
-      </Fragment>
+      {RenderPropertiesFields &&
+        <Fragment>
+          <RenderPropertiesFields node={props.node} />
+        </Fragment>
+      }
     </NodeEditor>
   )
 }

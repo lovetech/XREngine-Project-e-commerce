@@ -1,8 +1,7 @@
 import { Entity } from "@xrengine/engine/src/ecs/classes/Entity"
 import { getComponent } from "@xrengine/engine/src/ecs/functions/ComponentFunctions"
 import { InteractableComponent } from "@xrengine/engine/src/interaction/components/InteractableComponent"
-import { ProductComponent } from "./ProductComponent"
-import { initInteractive } from "./productFunctions"
+import { ProductComponent, ProductType } from "./ProductComponent"
 import axios from 'axios'
 import OAuth from 'oauth-1.0a'
 import CryptoJS from 'crypto-js'
@@ -27,7 +26,7 @@ export const makeRequest = async (url, ck, cs, method = 'GET') => {
   return response
 }
 
-export const getWoocommerceData = async (entity: Entity) => {
+export const getWoocommerceData = async (entity: Entity): Promise<ProductType[]> => {
   const component = getComponent(entity, ProductComponent)
   if (
     !component.domain ||
@@ -37,27 +36,22 @@ export const getWoocommerceData = async (entity: Entity) => {
     !component.secret ||
     component.secret == ''
   )
-    return
+    return []
   try {
     const res = await makeRequest(
       component.domain + '/wp-json/wc/v3/products',
       component.token,
       component.secret
     )
-    if (!res || !res.data) return
+    if (!res || !res.data) return []
     const productData: any = res.data
 
-    const interactableComponent = getComponent(entity, InteractableComponent)
-    initInteractive(interactableComponent)
-
-    component.products = []
-    component.productItems = []
-    component.productItemId = ''
-    var urlRegex = /(https?:\/\/[^\s]+)/g
     if (productData && productData.length > 0) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g
+      const products: ProductType[] = []
       productData.forEach((product) => {
         const sourceData: any[] = []
-        var urls = product.description.match(urlRegex)
+        const urls = product.description.match(urlRegex)
         urls.forEach((url) => {
           let extendType = ''
           let path = ''
@@ -89,7 +83,7 @@ export const getWoocommerceData = async (entity: Entity) => {
             }
           }
         })
-        component.products.push({
+        products.push({
           title: product.name,
           description: product.short_description.replace(/(<([^>]+)>)/gi, ''),
           storeUrl: product.permalink,
@@ -98,12 +92,12 @@ export const getWoocommerceData = async (entity: Entity) => {
           media: sourceData
         })
       })
+      return products
     }
-
     // CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
     // CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
   } catch (error) {
-    component.products = []
     console.error(error)
   }
+  return []
 }

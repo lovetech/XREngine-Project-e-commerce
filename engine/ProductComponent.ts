@@ -9,17 +9,29 @@ export type ProductType = {
   media: any
 }
 
-export type ProductProviders = 'shopify' | 'woocommerce'
+export type ProductSelectedType = {
+  value: number
+  label: string
+  media: {
+    extendType: string
+    filesize: number
+    format: string
+    mimeType: string
+    url: string
+  }
+}
+
+export const ProductProviders = ['shopify', 'woocommerce'] as const
+export type ProductProvidersType = typeof ProductProviders[number]
 
 export type ProductComponentType = {
-  provider: ProductProviders
-  extendType: string
+  provider: ProductProvidersType
   products: Array<ProductType>
   domain: string
   token: string
   secret?: string
   productId: string
-  productItems: Array<any>
+  productItems: Array<ProductSelectedType>
   productItemId: string
 }
 

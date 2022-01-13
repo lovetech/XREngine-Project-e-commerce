@@ -1,4 +1,4 @@
-import { EntityNodeEditor, prefabIcons } from '@xrengine/editor/src/managers/NodeManager'
+import { EntityNodeEditor, prefabIcons } from '@xrengine/editor/src/functions/PrefabEditors'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import ProductNodeEditor from './ProductNodeEditor'
 import { product } from '../worldInjection'

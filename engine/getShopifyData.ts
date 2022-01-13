@@ -1,14 +1,14 @@
 import { Entity } from "@xrengine/engine/src/ecs/classes/Entity"
 import { getComponent } from "@xrengine/engine/src/ecs/functions/ComponentFunctions"
 import { InteractableComponent } from "@xrengine/engine/src/interaction/components/InteractableComponent"
-import { ProductComponent } from "./ProductComponent"
+import { ProductComponent, ProductType } from "./ProductComponent"
 import { initInteractive } from "./productFunctions"
 import axios from 'axios'
 
-export const getShopifyData = async (entity: Entity) => {
+export const getShopifyData = async (entity: Entity): Promise<ProductType[]> => {
 
   const component = getComponent(entity, ProductComponent)
-  if (!component.domain || component.domain == '' || !component.token || component.token == '') return
+  if (!component.domain || component.domain == '' || !component.token || component.token == '') return []
   try {
     const res = await axios.post(
       `${component.domain}/api/2021-07/graphql.json`,
@@ -30,15 +30,10 @@ export const getShopifyData = async (entity: Entity) => {
       },
       { headers: { 'X-Shopify-Storefront-Access-Token': component.token, 'Content-Type': 'application/json' } }
     )
-    if (!res || !res.data) return
-
-    const interactableComponent = getComponent(entity, InteractableComponent)
-    initInteractive(interactableComponent)
-
+    if (!res || !res.data) return []
     const productData: any = res.data
-    component.products = []
-    component.productItems = []
     if (productData.data && productData.data.products && productData.data.products.edges) {
+      const products: ProductType[] = []
       for (const edgeProduct of productData.data.products.edges) {
         //TODO: interact data
         const response = await axios.post(
@@ -119,7 +114,7 @@ export const getShopifyData = async (entity: Entity) => {
                 })
               }
             }
-            component.products.push({
+            products.push({
               title: edgeProduct.node.title,
               description: edgeProduct.node.description,
               storeUrl: edgeProduct.node.onlineStoreUrl,
@@ -132,9 +127,10 @@ export const getShopifyData = async (entity: Entity) => {
       }
       // CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [component])
       // CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+      return products
     }
   } catch (error) {
-    component.products = []
     console.error(error)
   }
+  return []
 }
