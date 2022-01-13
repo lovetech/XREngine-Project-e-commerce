@@ -3,8 +3,9 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import ProductNodeEditor from './ProductNodeEditor'
 import { product } from '../worldInjection'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { SCENE_COMPONENT_PRODUCT } from '../engine/productFunctions'
 
-EntityNodeEditor[product] = ProductNodeEditor
+EntityNodeEditor[SCENE_COMPONENT_PRODUCT] = ProductNodeEditor
 prefabIcons[product] = ShoppingCartIcon
 
 export default async (world: World) => {
