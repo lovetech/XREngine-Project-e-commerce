@@ -17,14 +17,14 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 
 export const SCENE_COMPONENT_PRODUCT = 'e-commerce-product'
 export const SCENE_COMPONENT_PRODUCT_DEFAULT_VALUES = {
-  provider: '',
+  provider: 'shopify',
   domain: '',
   products: [],
   token: '',
   productId: '',
   productItems: [],
   productItemId: ''
-}
+} as ProductComponentType
 
 const providers = {
   'shopify': getShopifyData,
@@ -32,7 +32,8 @@ const providers = {
 } as Record<ProductProvidersType, (entity: Entity) => Promise<ProductType[]>>
 
 export const deserializeProduct: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson<ProductComponentType>) => {
-  const component = addComponent(entity, ProductComponent, { ...SCENE_COMPONENT_PRODUCT_DEFAULT_VALUES, ...json.props })
+  const props = parseProductProperties(json.props)
+  const component = addComponent(entity, ProductComponent, props)
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PRODUCT)
@@ -48,7 +49,6 @@ export const deserializeProduct: ComponentDeserializeFunction = (entity: Entity,
 export const updateProduct: ComponentUpdateFunction = async (entity: Entity, properties: ProductComponentType) => {
   if (Engine.isEditor) {
     const component = getComponent(entity, ProductComponent)
-    console.log('updateProduct', properties, component)
 
     switch (Object.keys(properties)[0] as keyof ProductComponentType) {
       case 'productId': return updateProductId(entity, properties.productId)
@@ -182,4 +182,12 @@ export const initInteractive = (interactableComponent: ComponentType<typeof Inte
   interactableComponent.interactionVideos = []
   interactableComponent.interactionUrls = []
   interactableComponent.interactionModels = []
+}
+
+const parseProductProperties = (props: Partial<ProductComponentType>): ProductComponentType => {
+  return {
+    ...SCENE_COMPONENT_PRODUCT_DEFAULT_VALUES,
+    provider: props.provider ?? SCENE_COMPONENT_PRODUCT_DEFAULT_VALUES.provider,
+    domain: props.domain ?? SCENE_COMPONENT_PRODUCT_DEFAULT_VALUES.domain
+  }
 }
